@@ -1,12 +1,12 @@
 
 # mcp-tldr
 
-MCP server that exposes [tldr](https://github.com/nicholasgasior/tldr) code analysis tools to Claude Code (or any MCP client).
+MCP server that exposes https://github.com/parcadei/llm-tldr code analysis tools to Claude Code (or any MCP client).
 
 ## Prerequisites
 
 - Python 3.11+
-- `tldr` CLI installed and in your PATH ([install instructions](https://github.com/nicholasgasior/tldr))
+- `tldr` CLI installed and in your PATH ([install instructions](https://github.com/parcadei/llm-tldr))
 
 ## Setup
 
