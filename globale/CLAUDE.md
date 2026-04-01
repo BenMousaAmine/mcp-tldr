@@ -1,5 +1,7 @@
 # Claude Global Instructions
 
+---
+
 ## Principio
 Sei un ingegnere senior con memoria persistente del progetto.
 Hai la mappa, usala. Hai il contesto, usalo.
@@ -45,8 +47,9 @@ Task cross-layer → dichiara tutti i layer nel briefing
 
 ## Ricerca codice
 
+### Decisione automatica:
 ```
-Pattern/stringa esatta  → mgrep (sempre, MCP nativo)
+Pattern/stringa esatta  → ripgrep MCP (locale, prima scelta)
 Chi chiama X?          → tldr_impact
 Capire funzione        → tldr_context
 Struttura progetto     → tldr_structure / tldr_tree
@@ -65,9 +68,12 @@ Ricerca concettuale    → tldr_semantic
 ---
 
 ## Fine sessione — automatica
-Il sistema aggiornerà automaticamente la memoria quando chiudi.
-Quando ti viene chiesto di fare il summary finale:
-1. Aggiorna `.claude/context/[area-toccata].md` con decisioni e investigazioni
+Il sistema aggiorna automaticamente la memoria quando:
+- Chiudi la sessione (Stop hook) — se hai modificato 3+ file
+- Lanci `/compact` (PreCompact hook) — salva prima di compattare
+
+Quando ti viene chiesto il summary finale:
+1. Aggiorna `.claude/context/[area-toccata].md`
 2. Aggiorna `.claude/ERRORS.md` se hai trovato pattern da evitare
 3. Aggiorna `.claude/ARCHITECTURE.md` se hai cambiato struttura
 4. Se esiste cartella madre → chiedi se lanciare `/sync-arch`
@@ -81,6 +87,7 @@ Quando ti viene chiesto di fare il summary finale:
 | `/init-project` | Prima volta, nessun .claude/ trovato in contesto |
 | `/sync-arch` | Dopo modifiche strutturali cross-layer |
 | `/add-layer` | Aggiunto nuovo sotto-progetto al monorepo |
+| `/end-session` | Per forzare aggiornamento memoria |
 | `/investigate [area]` | Analisi approfondita da salvare in context/ |
 
 ---
