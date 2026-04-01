@@ -141,6 +141,128 @@ async def list_tools() -> list[Tool]:
                 "required": ["path"],
             },
         ),
+        Tool(
+            name="tldr_extract",
+            description="Extract full file analysis (classes, functions, methods, imports). Use to deeply understand a single file.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "file": {"type": "string", "description": "File path to analyze"},
+                    "class_filter": {"type": "string", "description": "Filter to specific class"},
+                    "function_filter": {"type": "string", "description": "Filter to specific function"},
+                    "method_filter": {"type": "string", "description": "Filter to specific method (Class.method)"},
+                },
+                "required": ["file"],
+            },
+        ),
+        Tool(
+            name="tldr_cfg",
+            description="Control flow graph for a function. Shows branches, loops, and execution paths.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "file": {"type": "string", "description": "Source file path"},
+                    "function": {"type": "string", "description": "Function name"},
+                    "lang": {"type": "string", "description": "Language override (auto-detected if omitted)"},
+                },
+                "required": ["file", "function"],
+            },
+        ),
+        Tool(
+            name="tldr_dfg",
+            description="Data flow graph for a function. Shows how data moves through variables and expressions.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "file": {"type": "string", "description": "Source file path"},
+                    "function": {"type": "string", "description": "Function name"},
+                    "lang": {"type": "string", "description": "Language override (auto-detected if omitted)"},
+                },
+                "required": ["file", "function"],
+            },
+        ),
+        Tool(
+            name="tldr_slice",
+            description="Program slice: find all lines that affect a specific line. Use to understand what influences a value or statement.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "file": {"type": "string", "description": "Source file path"},
+                    "function": {"type": "string", "description": "Function name"},
+                    "line": {"type": "integer", "description": "Line number to slice from"},
+                    "direction": {"type": "string", "enum": ["backward", "forward"], "description": "Slice direction (default: backward)"},
+                    "var": {"type": "string", "description": "Variable to track (optional)"},
+                },
+                "required": ["file", "function", "line"],
+            },
+        ),
+        Tool(
+            name="tldr_dead",
+            description="Find unreachable (dead) code in a project. Useful for cleanup and refactoring.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "path": {"type": "string", "description": "Project path (absolute)"},
+                    "lang": {"type": "string", "description": "Language filter"},
+                    "entry": {"type": "array", "items": {"type": "string"}, "description": "Additional entry point patterns"},
+                },
+                "required": ["path"],
+            },
+        ),
+        Tool(
+            name="tldr_imports",
+            description="Parse imports from a source file. Shows all dependencies of a file.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "file": {"type": "string", "description": "Source file path"},
+                    "lang": {"type": "string", "description": "Language override"},
+                },
+                "required": ["file"],
+            },
+        ),
+        Tool(
+            name="tldr_importers",
+            description="Find all files that import a module (reverse import lookup). Use to understand module usage across the project.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "module": {"type": "string", "description": "Module name to search for"},
+                    "path": {"type": "string", "description": "Project path (absolute)"},
+                    "lang": {"type": "string", "description": "Language filter"},
+                },
+                "required": ["module", "path"],
+            },
+        ),
+        Tool(
+            name="tldr_change_impact",
+            description="Find tests affected by changed files. Use before committing to know what to test.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "files": {"type": "array", "items": {"type": "string"}, "description": "Files to analyze"},
+                    "git": {"type": "boolean", "description": "Use git diff to find changed files"},
+                    "git_base": {"type": "string", "description": "Git ref to diff against (default: HEAD~1)"},
+                    "lang": {"type": "string", "description": "Language filter"},
+                    "depth": {"type": "integer", "description": "Max call graph depth (default: 5)"},
+                },
+                "required": [],
+            },
+        ),
+        Tool(
+            name="tldr_diagnostics",
+            description="Get type-check and lint diagnostics for a file or project. Use to find errors without running the code.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "target": {"type": "string", "description": "File or project directory to check"},
+                    "project": {"type": "boolean", "description": "Check entire project instead of single file"},
+                    "no_lint": {"type": "boolean", "description": "Skip linter, only run type checker"},
+                    "lang": {"type": "string", "description": "Language override"},
+                },
+                "required": ["target"],
+            },
+        ),
     ]
 
 
@@ -178,6 +300,81 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
     elif name == "tldr_warm":
         output = run_tldr(["warm", arguments["path"]])
+
+    elif name == "tldr_extract":
+        args = ["extract", arguments["file"]]
+        if "class_filter" in arguments:
+            args += ["--class", arguments["class_filter"]]
+        if "function_filter" in arguments:
+            args += ["--function", arguments["function_filter"]]
+        if "method_filter" in arguments:
+            args += ["--method", arguments["method_filter"]]
+        output = run_tldr(args)
+
+    elif name == "tldr_cfg":
+        args = ["cfg", arguments["file"], arguments["function"]]
+        if "lang" in arguments:
+            args += ["--lang", arguments["lang"]]
+        output = run_tldr(args)
+
+    elif name == "tldr_dfg":
+        args = ["dfg", arguments["file"], arguments["function"]]
+        if "lang" in arguments:
+            args += ["--lang", arguments["lang"]]
+        output = run_tldr(args)
+
+    elif name == "tldr_slice":
+        args = ["slice", arguments["file"], arguments["function"], str(arguments["line"])]
+        if "direction" in arguments:
+            args += ["--direction", arguments["direction"]]
+        if "var" in arguments:
+            args += ["--var", arguments["var"]]
+        output = run_tldr(args)
+
+    elif name == "tldr_dead":
+        args = ["dead", arguments["path"]]
+        if "lang" in arguments:
+            args += ["--lang", arguments["lang"]]
+        if "entry" in arguments:
+            for e in arguments["entry"]:
+                args += ["--entry", e]
+        output = run_tldr(args)
+
+    elif name == "tldr_imports":
+        args = ["imports", arguments["file"]]
+        if "lang" in arguments:
+            args += ["--lang", arguments["lang"]]
+        output = run_tldr(args)
+
+    elif name == "tldr_importers":
+        args = ["importers", arguments["module"], arguments["path"]]
+        if "lang" in arguments:
+            args += ["--lang", arguments["lang"]]
+        output = run_tldr(args)
+
+    elif name == "tldr_change_impact":
+        args = ["change-impact"]
+        if "git" in arguments and arguments["git"]:
+            args += ["--git"]
+        if "git_base" in arguments:
+            args += ["--git-base", arguments["git_base"]]
+        if "lang" in arguments:
+            args += ["--lang", arguments["lang"]]
+        if "depth" in arguments:
+            args += ["--depth", str(arguments["depth"])]
+        if "files" in arguments:
+            args += arguments["files"]
+        output = run_tldr(args)
+
+    elif name == "tldr_diagnostics":
+        args = ["diagnostics", arguments["target"]]
+        if "project" in arguments and arguments["project"]:
+            args += ["--project"]
+        if "no_lint" in arguments and arguments["no_lint"]:
+            args += ["--no-lint"]
+        if "lang" in arguments:
+            args += ["--lang", arguments["lang"]]
+        output = run_tldr(args)
 
     else:
         output = f"Unknown tool: {name}"

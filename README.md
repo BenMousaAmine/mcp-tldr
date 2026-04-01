@@ -1,3 +1,4 @@
+
 # mcp-tldr
 
 MCP server that exposes [tldr](https://github.com/nicholasgasior/tldr) code analysis tools to Claude Code (or any MCP client).
@@ -64,6 +65,15 @@ Alternatively, if `tldr` is not in your PATH, set the `TLDR_BIN` environment var
 | `tldr_semantic` | Natural language code search |
 | `tldr_arch` | Detect architectural layers |
 | `tldr_warm` | Pre-build cache for faster queries |
+| `tldr_extract` | Full file analysis (classes, functions, methods) |
+| `tldr_cfg` | Control flow graph for a function |
+| `tldr_dfg` | Data flow graph for a function |
+| `tldr_slice` | Program slice (what affects line X) |
+| `tldr_dead` | Find unreachable/dead code |
+| `tldr_imports` | Parse imports from a file |
+| `tldr_importers` | Find all files importing a module |
+| `tldr_change_impact` | Find tests affected by changes |
+| `tldr_diagnostics` | Type-check and lint diagnostics |
 
 ## Usage
 

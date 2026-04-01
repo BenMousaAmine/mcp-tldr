@@ -2,11 +2,14 @@ Analizza il progetto corrente e inizializza il sistema .claude/.
 
 Esegui questi step in ordine:
 
-1. Controlla se esiste già .claude/ — se sì, chiedi conferma prima di sovrascrivere
+1. Controlla se esiste già .claude/ARCHITECTURE.md — se sì, chiedi conferma prima di sovrascrivere
 
 2. Rileva stack leggendo: package.json, composer.json, Podfile, build.gradle, requirements.txt, pubspec.yaml
 
-3. Usa tldr_tree e tldr_structure per mappare la struttura
+3. Mappa la struttura usando OBBLIGATORIAMENTE questi tool MCP nell'ordine:
+   - `tldr_tree` per vedere l'albero file (MAI usare ls, find o bash per listare directory)
+   - `tldr_structure` con il lang rilevato per vedere classi e funzioni
+   - `tldr_warm` per indicizzare il progetto prima di altre query tldr
 
 4. Determina il tipo di progetto:
    - monorepo-root: contiene più sotto-cartelle con stack diversi
